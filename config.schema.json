@@ -1,0 +1,27 @@
+{
+  "pluginAlias": "Kidde",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "username": {
+        "title": "Username",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "cookies": {
+        "title": "Session",
+        "type": "object",
+        "required": false
+      }
+    }
+  }
+}
