@@ -20,15 +20,18 @@ export class KiddeSmokeCOAlarm {
         .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Kidde')
         .setCharacteristic(this.platform.Characteristic.Model, this.client.devices![this.device_id].model as string)
         .setCharacteristic(this.platform.Characteristic.SerialNumber, this.client.devices![this.device_id].serial_number as string);
-      //                this.service.setCharacteristic(this.platform.Characteristic.Name, "some name");
+
       if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('IAQ')) {
         this.airQualityService = this.accessory.getService(this.platform.Service.AirQualitySensor) ||
           this.accessory.addService(this.platform.Service.AirQualitySensor);
         this.airQualityService.getCharacteristic(this.platform.Characteristic.AirQuality)
           .onGet(this.handleAirQualityGet.bind(this));
-
         this.airQualityService.getCharacteristic(this.platform.Characteristic.VOCDensity)
           .onGet(this.handleVocDensityGet.bind(this));
+        this.humidityService = this.accessory.getService(this.platform.Service.HumiditySensor) ||
+          this.accessory.addService(this.platform.Service.HumiditySensor);
+        this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+          .onGet(this.handleHumidityGet.bind(this));
       }
       this.batteryService = this.accessory.getService(this.platform.Service.Battery) ||
       this.accessory.addService(this.platform.Service.Battery);
@@ -54,11 +57,6 @@ export class KiddeSmokeCOAlarm {
         this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
           .onGet(this.handleTemperatureGet.bind(this));
       }
-
-      this.humidityService = this.accessory.getService(this.platform.Service.HumiditySensor) ||
-        this.accessory.addService(this.platform.Service.HumiditySensor);
-      this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-        .onGet(this.handleHumidityGet.bind(this));
   }
 
   private update(oldData: Record<number, Record<string, unknown>> | undefined, newData: Record<number, Record<string, unknown>>) {
@@ -88,9 +86,15 @@ export class KiddeSmokeCOAlarm {
         this.convertSmokeDetected(newData![this.device_id].smoke_alarm as boolean));
     }
     if (this.temperatureService && oldData && 
-        (oldData![this.device_id].iaq_temperature as {value: number}).value !== (newData![this.device_id].iaq_temperature as {value: number}).value) {
-      this.temperatureService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature,
-        (newData![this.device_id].iaq_temperature as {value: number}).value);
+      (oldData![this.device_id].iaq_temperature as {value: number}).value !== (newData![this.device_id].iaq_temperature as {value: number}).value) {
+      const iaq_temperature = newData![this.device_id].iaq_temperature as {Unit: string, value: number};
+      if (iaq_temperature.Unit === 'F') {
+        this.temperatureService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature,
+          ((newData![this.device_id].iaq_temperature as {value: number}).value - 32) * 5 / 9);
+      } else {
+        this.temperatureService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature,
+          (newData![this.device_id].iaq_temperature as {value: number}).value);
+      }
     }
     if (this.airQualityService && oldData && 
         (oldData![this.device_id].tvoc as {value: number}).value !== (newData![this.device_id].tvoc as {value: number}).value) {
@@ -164,7 +168,12 @@ export class KiddeSmokeCOAlarm {
   }
 
   async handleTemperatureGet(): Promise<CharacteristicValue> {
-    return (this.client.devices![this.device_id].iaq_temperature as {value: number}).value;
+    const iaq_temperature = this.client.devices![this.device_id].iaq_temperature as {Unit: string, value: number};
+    if (iaq_temperature.Unit === 'F') {
+      return (iaq_temperature.value - 32) * 5 / 9;
+    } else {
+      return iaq_temperature.value;
+    }
   }
 
   async handleVocDensityGet(): Promise<CharacteristicValue> {

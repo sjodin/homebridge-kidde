@@ -2,7 +2,7 @@
   "name": "homebridge-kidde",
   "displayName": "Homebridge Kidde",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "Kidde smart smoke detector",
   "author": "Mikael Sjödin",

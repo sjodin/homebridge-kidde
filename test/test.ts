@@ -121,9 +121,9 @@ beforeAll(async () => {
         'iaq_learn_countdown': 96,
         'iaq_state': 'Learning',
         'iaq_temperature': {
-          'Unit': 'F',
+          'Unit': 'C',
           'status': 'Good',
-          'value': 70,
+          'value': 20,
         },
         'iaq_test_status': true,
         'id': 779836,
@@ -279,7 +279,7 @@ test('temperature get', async () => {
 
     await temperature.handleGetRequest().then(() => {
       expect(temperature.statusCode).toEqual(HAPStatus.SUCCESS);
-      expect(temperature.value).toEqual(70);
+      expect(temperature.value).toEqual(20);
     });
   } else {
     console.log('No accessories ' + platform.accessories.size);
