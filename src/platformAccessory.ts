@@ -3,130 +3,130 @@ import type { KiddeHomebridgePlatform } from './platform.js';
 import { KiddeClient } from './kiddeclient.js';
 
 export class KiddeSmokeCOAlarm {
-  private airQualityService : Service | undefined;
-  private coService : Service | undefined;
-  private humidityService : Service | undefined;
-  private smokeService : Service | undefined;
-  private temperatureService : Service | undefined;
-  private batteryService : Service | undefined;
+  private airQualityService: Service | undefined;
+  private coService: Service | undefined;
+  private humidityService: Service | undefined;
+  private smokeService: Service | undefined;
+  private temperatureService: Service | undefined;
+  private batteryService: Service | undefined;
   constructor(protected platform: KiddeHomebridgePlatform,
-        protected client: KiddeClient,
-        protected device_id: number,
-        protected location_id: number,
-        protected accessory: PlatformAccessory,
+    protected client: KiddeClient,
+    protected device_id: number,
+    protected location_id: number,
+    protected accessory: PlatformAccessory,
   ) {
     client.registerCallback(this.update.bind(this));
-      this.accessory.getService(this.platform.Service.AccessoryInformation)!
-        .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Kidde')
-        .setCharacteristic(this.platform.Characteristic.Model, this.client.devices![this.device_id].model as string)
-        .setCharacteristic(this.platform.Characteristic.SerialNumber, this.client.devices![this.device_id].serial_number as string);
+    this.accessory.getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Kidde')
+      .setCharacteristic(this.platform.Characteristic.Model, this.client.devices![this.device_id].model as string)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.client.devices![this.device_id].serial_number as string);
 
-      if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('IAQ')) {
-        this.airQualityService = this.accessory.getService(this.platform.Service.AirQualitySensor) ||
-          this.accessory.addService(this.platform.Service.AirQualitySensor);
-        this.airQualityService.getCharacteristic(this.platform.Characteristic.AirQuality)
-          .onGet(this.handleAirQualityGet.bind(this));
-        this.airQualityService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-          .onGet(this.handleVocDensityGet.bind(this));
-        this.humidityService = this.accessory.getService(this.platform.Service.HumiditySensor) ||
-          this.accessory.addService(this.platform.Service.HumiditySensor);
-        this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-          .onGet(this.handleHumidityGet.bind(this));
-      }
-      this.batteryService = this.accessory.getService(this.platform.Service.Battery) ||
+    if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('IAQ')) {
+      this.airQualityService = this.accessory.getService(this.platform.Service.AirQualitySensor) ||
+        this.accessory.addService(this.platform.Service.AirQualitySensor);
+      this.airQualityService.getCharacteristic(this.platform.Characteristic.AirQuality)
+        .onGet(this.handleAirQualityGet.bind(this));
+      this.airQualityService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+        .onGet(this.handleVocDensityGet.bind(this));
+      this.humidityService = this.accessory.getService(this.platform.Service.HumiditySensor) ||
+        this.accessory.addService(this.platform.Service.HumiditySensor);
+      this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+        .onGet(this.handleHumidityGet.bind(this));
+    }
+    this.batteryService = this.accessory.getService(this.platform.Service.Battery) ||
       this.accessory.addService(this.platform.Service.Battery);
-      this.batteryService.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
-        .onGet(this.handleBatteryGet.bind(this));
-      if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('CO')) {
-        this.coService = this.accessory.getService(this.platform.Service.CarbonMonoxideSensor) ||
-          this.accessory.addService(this.platform.Service.CarbonMonoxideSensor);
-        this.coService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
-          .onGet(this.handleCarbonMonoxideDetectedGet.bind(this));
-      }
+    this.batteryService.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onGet(this.handleBatteryGet.bind(this));
+    if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('CO')) {
+      this.coService = this.accessory.getService(this.platform.Service.CarbonMonoxideSensor) ||
+        this.accessory.addService(this.platform.Service.CarbonMonoxideSensor);
+      this.coService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
+        .onGet(this.handleCarbonMonoxideDetectedGet.bind(this));
+    }
 
-      if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('Smoke')) {
-        this.smokeService = this.accessory.getService(this.platform.Service.SmokeSensor) ||
-          this.accessory.addService(this.platform.Service.SmokeSensor);
-        this.smokeService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
-          .onGet(this.handleSmokeDetectedGet.bind(this));
-      }
+    if ((this.client.devices![this.device_id].cap_sensor as Array<string>).includes('Smoke')) {
+      this.smokeService = this.accessory.getService(this.platform.Service.SmokeSensor) ||
+        this.accessory.addService(this.platform.Service.SmokeSensor);
+      this.smokeService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
+        .onGet(this.handleSmokeDetectedGet.bind(this));
+    }
 
-      if ((this.client.devices![this.device_id].capabilities as Array<string>).includes('temperature')) {
-        this.temperatureService = this.accessory.getService(this.platform.Service.TemperatureSensor) ||
-          this.accessory.addService(this.platform.Service.TemperatureSensor);
-        this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-          .onGet(this.handleTemperatureGet.bind(this));
-      }
+    if ((this.client.devices![this.device_id].capabilities as Array<string>).includes('temperature')) {
+      this.temperatureService = this.accessory.getService(this.platform.Service.TemperatureSensor) ||
+        this.accessory.addService(this.platform.Service.TemperatureSensor);
+      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+        .onGet(this.handleTemperatureGet.bind(this));
+    }
   }
 
   private update(oldData: Record<number, Record<string, unknown>> | undefined, newData: Record<number, Record<string, unknown>>) {
-    if (this.airQualityService && oldData && 
-        (oldData![this.device_id].iaq as {status: string}).status !== (newData![this.device_id].iaq as {status: string}).status) {
+    if (this.airQualityService && oldData &&
+      (oldData![this.device_id].iaq as { status: string }).status !== (newData![this.device_id].iaq as { status: string }).status) {
       this.airQualityService.updateCharacteristic(this.platform.Characteristic.AirQuality,
-        this.convertAirQuality((newData![this.device_id].iaq as {status: string}).status));
+        this.convertAirQuality((newData![this.device_id].iaq as { status: string }).status));
     }
-    if (this.batteryService && oldData && 
+    if (this.batteryService && oldData &&
       oldData![this.device_id].battery_state !== newData![this.device_id].battery_state) {
       this.batteryService.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
-        this.convertAirQuality(newData![this.device_id].battery_state as string));
+        this.convertBattery(newData![this.device_id].battery_state as string));
     }
     if (this.coService && oldData &&
-        oldData![this.device_id].co_alarm !== newData![this.device_id].co_alarm) {
+      oldData![this.device_id].co_alarm !== newData![this.device_id].co_alarm) {
       this.coService.updateCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected,
         this.convertCarbonMonoxideDetected(newData![this.device_id].co_alarm as boolean));
     }
     if (this.humidityService && oldData &&
-        (oldData![this.device_id].humidity as {value: number}).value !== (newData![this.device_id].humidity as {value: number}).value) {
+      (oldData![this.device_id].humidity as { value: number }).value !== (newData![this.device_id].humidity as { value: number }).value) {
       this.humidityService.updateCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity,
-        (newData![this.device_id].humidity as {value: number}).value);
+        (newData![this.device_id].humidity as { value: number }).value);
     }
-    if (this.smokeService && oldData && 
-        oldData![this.device_id].smoke_alarm !== newData![this.device_id].smoke_alarm) {
+    if (this.smokeService && oldData &&
+      oldData![this.device_id].smoke_alarm !== newData![this.device_id].smoke_alarm) {
       this.smokeService.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
         this.convertSmokeDetected(newData![this.device_id].smoke_alarm as boolean));
     }
-    if (this.temperatureService && oldData && 
-      (oldData![this.device_id].iaq_temperature as {value: number}).value !== (newData![this.device_id].iaq_temperature as {value: number}).value) {
-      const iaq_temperature = newData![this.device_id].iaq_temperature as {Unit: string, value: number};
+    if (this.temperatureService && oldData &&
+      (oldData![this.device_id].iaq_temperature as { value: number }).value !== (newData![this.device_id].iaq_temperature as { value: number }).value) {
+      const iaq_temperature = newData![this.device_id].iaq_temperature as { Unit: string, value: number };
       if (iaq_temperature.Unit === 'F') {
         this.temperatureService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature,
-          ((newData![this.device_id].iaq_temperature as {value: number}).value - 32) * 5 / 9);
+          ((newData![this.device_id].iaq_temperature as { value: number }).value - 32) * 5 / 9);
       } else {
         this.temperatureService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature,
-          (newData![this.device_id].iaq_temperature as {value: number}).value);
+          (newData![this.device_id].iaq_temperature as { value: number }).value);
       }
     }
-    if (this.airQualityService && oldData && 
-        (oldData![this.device_id].tvoc as {value: number}).value !== (newData![this.device_id].tvoc as {value: number}).value) {
+    if (this.airQualityService && oldData &&
+      (oldData![this.device_id].tvoc as { value: number }).value !== (newData![this.device_id].tvoc as { value: number }).value) {
       this.airQualityService.updateCharacteristic(this.platform.Characteristic.VOCDensity,
-        this.convertVoc((newData![this.device_id].tvoc as {value: number}).value));
+        this.convertVoc((newData![this.device_id].tvoc as { value: number }).value));
     }
   }
 
   async handleAirQualityGet(): Promise<CharacteristicValue> {
-    return this.convertAirQuality((this.client.devices![this.device_id].iaq as {status: string}).status);
+    return this.convertAirQuality((this.client.devices![this.device_id].iaq as { status: string }).status);
   }
 
-  private convertAirQuality(status: string) : CharacteristicValue {
+  private convertAirQuality(status: string): CharacteristicValue {
     switch (status) {
-    case 'Excellent': {
-      return this.platform.Characteristic.AirQuality.EXCELLENT;
-    }
-    case 'Good': {
-      return this.platform.Characteristic.AirQuality.GOOD;
-    }
-    case 'Moderate': {
-      return this.platform.Characteristic.AirQuality.FAIR;
-    }
-    case 'Bad': {
-      return this.platform.Characteristic.AirQuality.INFERIOR;
-    }
-    case 'Very Bad': {
-      return this.platform.Characteristic.AirQuality.POOR;
-    }
-    default: {
-      break;
-    }
+      case 'Excellent': {
+        return this.platform.Characteristic.AirQuality.EXCELLENT;
+      }
+      case 'Good': {
+        return this.platform.Characteristic.AirQuality.GOOD;
+      }
+      case 'Moderate': {
+        return this.platform.Characteristic.AirQuality.FAIR;
+      }
+      case 'Bad': {
+        return this.platform.Characteristic.AirQuality.INFERIOR;
+      }
+      case 'Very Bad': {
+        return this.platform.Characteristic.AirQuality.POOR;
+      }
+      default: {
+        break;
+      }
     }
     return this.platform.Characteristic.AirQuality.UNKNOWN;
   }
@@ -135,13 +135,13 @@ export class KiddeSmokeCOAlarm {
     return this.convertBattery(this.client.devices![this.device_id].battery_state as string);
   }
 
-  private convertBattery(battery_state: string) : CharacteristicValue {
+  private convertBattery(battery_state: string): CharacteristicValue {
     if (battery_state === 'ok') {
       return this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
     }
     return this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
   }
-  
+
   async handleCarbonMonoxideDetectedGet(): Promise<CharacteristicValue> {
     return this.convertCarbonMonoxideDetected(this.client.devices![this.device_id].co_alarm as boolean);
   }
@@ -153,7 +153,7 @@ export class KiddeSmokeCOAlarm {
   }
 
   async handleHumidityGet(): Promise<CharacteristicValue> {
-    return (this.client.devices![this.device_id].humidity as {value: number}).value;
+    return (this.client.devices![this.device_id].humidity as { value: number }).value;
   }
 
   async handleSmokeDetectedGet(): Promise<CharacteristicValue> {
@@ -168,7 +168,7 @@ export class KiddeSmokeCOAlarm {
   }
 
   async handleTemperatureGet(): Promise<CharacteristicValue> {
-    const iaq_temperature = this.client.devices![this.device_id].iaq_temperature as {Unit: string, value: number};
+    const iaq_temperature = this.client.devices![this.device_id].iaq_temperature as { Unit: string, value: number };
     if (iaq_temperature.Unit === 'F') {
       return (iaq_temperature.value - 32) * 5 / 9;
     } else {
@@ -177,10 +177,10 @@ export class KiddeSmokeCOAlarm {
   }
 
   async handleVocDensityGet(): Promise<CharacteristicValue> {
-    return this.convertVoc((this.client.devices![this.device_id].tvoc as {value: number}).value);
+    return this.convertVoc((this.client.devices![this.device_id].tvoc as { value: number }).value);
   }
 
-  private convertVoc(tvoc: number) : CharacteristicValue {
+  private convertVoc(tvoc: number): CharacteristicValue {
     return tvoc / 4.57;
   }
 }
