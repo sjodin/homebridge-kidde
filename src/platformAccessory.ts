@@ -68,7 +68,7 @@ export class KiddeSmokeCOAlarm {
     if (this.batteryService && oldData && 
       oldData![this.device_id].battery_state !== newData![this.device_id].battery_state) {
       this.batteryService.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
-        this.convertAirQuality(newData![this.device_id].battery_state as string));
+        this.convertBattery(newData![this.device_id].battery_state as string));
     }
     if (this.coService && oldData &&
         oldData![this.device_id].co_alarm !== newData![this.device_id].co_alarm) {
