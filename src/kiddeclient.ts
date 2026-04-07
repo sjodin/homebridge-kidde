@@ -105,7 +105,7 @@ class KiddeClient {
   }
 
   // Fetch the dataset
-  async getData(getDevices: boolean = true, getEvents: boolean = true): Promise<KiddeDataset> {
+  async getData(getDevices: boolean = true, getEvents: boolean = false): Promise<KiddeDataset> {
     const locationList = await this.request('location');
     this.locations = dictByIds(locationList as Array<Record<string, unknown>>);
 
