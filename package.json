@@ -2,7 +2,7 @@
   "name": "homebridge-kidde",
   "displayName": "Homebridge Kidde",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": false,
   "description": "Kidde smart smoke detector",
   "author": "Mikael Sjödin",
@@ -20,7 +20,7 @@
   ],
   "main": "dist/index.js",
   "engines": {
-    "node": "^18.20.4 || ^20.18.0 || ^22.10.0",
+    "node": "^18.20.4 || ^20.18.0 || ^22.10.0 || ^24.0.0",
     "homebridge": "^1.8.0 || ^2.0.0-beta.0"
   },
   "scripts": {
