@@ -159,7 +159,7 @@ export class KiddeSmokeCOAlarm {
   }
 
   private convertBattery(battery_state: string) : CharacteristicValue {
-    if (battery_state === 'ok') {
+    if (battery_state === 'ok' || battery_state === 'Good') {
       return this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
     }
     return this.platform.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
@@ -170,7 +170,7 @@ export class KiddeSmokeCOAlarm {
   }
 
   private convertBatteryLevel(battery_state: string) : CharacteristicValue {
-    if (battery_state === 'ok') {
+    if (battery_state === 'ok' || battery_state === 'Good') {
       return 100;
     }
     return 10;
